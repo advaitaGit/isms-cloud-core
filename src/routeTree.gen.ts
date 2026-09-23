@@ -15,6 +15,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedControlsRouteImport } from './routes/_authenticated/controls'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedGlobalRouteImport } from './routes/_authenticated/global'
+import { Route as AuthenticatedOrganizationsRouteImport } from './routes/_authenticated/organizations'
+import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedRisksIndexRouteImport } from './routes/_authenticated/risks.index'
 import { Route as AuthenticatedRisksNewRouteImport } from './routes/_authenticated/risks.new'
 
@@ -47,6 +50,22 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGlobalRoute = AuthenticatedGlobalRouteImport.update({
+  id: '/global',
+  path: '/global',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOrganizationsRoute =
+  AuthenticatedOrganizationsRouteImport.update({
+    id: '/organizations',
+    path: '/organizations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRisksIndexRoute = AuthenticatedRisksIndexRouteImport.update({
   id: '/risks/',
   path: '/risks/',
@@ -64,6 +83,9 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/controls': typeof AuthenticatedControlsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/global': typeof AuthenticatedGlobalRoute
+  '/organizations': typeof AuthenticatedOrganizationsRoute
+  '/users': typeof AuthenticatedUsersRoute
   '/risks/new': typeof AuthenticatedRisksNewRoute
   '/risks/': typeof AuthenticatedRisksIndexRoute
 }
@@ -73,6 +95,9 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/controls': typeof AuthenticatedControlsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/global': typeof AuthenticatedGlobalRoute
+  '/organizations': typeof AuthenticatedOrganizationsRoute
+  '/users': typeof AuthenticatedUsersRoute
   '/risks/new': typeof AuthenticatedRisksNewRoute
   '/risks': typeof AuthenticatedRisksIndexRoute
 }
@@ -84,6 +109,9 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/controls': typeof AuthenticatedControlsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/global': typeof AuthenticatedGlobalRoute
+  '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
+  '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/risks/new': typeof AuthenticatedRisksNewRoute
   '/_authenticated/risks/': typeof AuthenticatedRisksIndexRoute
 }
@@ -95,6 +123,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/controls'
     | '/dashboard'
+    | '/global'
+    | '/organizations'
+    | '/users'
     | '/risks/new'
     | '/risks/'
   fileRoutesByTo: FileRoutesByTo
@@ -104,6 +135,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/controls'
     | '/dashboard'
+    | '/global'
+    | '/organizations'
+    | '/users'
     | '/risks/new'
     | '/risks'
   id:
@@ -114,6 +148,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/controls'
     | '/_authenticated/dashboard'
+    | '/_authenticated/global'
+    | '/_authenticated/organizations'
+    | '/_authenticated/users'
     | '/_authenticated/risks/new'
     | '/_authenticated/risks/'
   fileRoutesById: FileRoutesById
@@ -169,6 +206,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/global': {
+      id: '/_authenticated/global'
+      path: '/global'
+      fullPath: '/global'
+      preLoaderRoute: typeof AuthenticatedGlobalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/organizations': {
+      id: '/_authenticated/organizations'
+      path: '/organizations'
+      fullPath: '/organizations'
+      preLoaderRoute: typeof AuthenticatedOrganizationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/users': {
+      id: '/_authenticated/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/risks/': {
       id: '/_authenticated/risks/'
       path: '/risks'
@@ -189,6 +247,9 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedControlsRoute: typeof AuthenticatedControlsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGlobalRoute: typeof AuthenticatedGlobalRoute
+  AuthenticatedOrganizationsRoute: typeof AuthenticatedOrganizationsRoute
+  AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedRisksNewRoute: typeof AuthenticatedRisksNewRoute
   AuthenticatedRisksIndexRoute: typeof AuthenticatedRisksIndexRoute
 }
@@ -196,6 +257,9 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedControlsRoute: AuthenticatedControlsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGlobalRoute: AuthenticatedGlobalRoute,
+  AuthenticatedOrganizationsRoute: AuthenticatedOrganizationsRoute,
+  AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedRisksNewRoute: AuthenticatedRisksNewRoute,
   AuthenticatedRisksIndexRoute: AuthenticatedRisksIndexRoute,
 }
