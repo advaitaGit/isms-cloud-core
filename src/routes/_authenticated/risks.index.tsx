@@ -65,7 +65,10 @@ function RiskRegister() {
 
   const updateStatus = async (risk: Risk, next: string) => {
     const { error } = await supabase.from("risks").update({ status: next }).eq("id", risk.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Risk updated");
     void queryClient.invalidateQueries({ queryKey: ["risks"] });
     void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
@@ -73,7 +76,10 @@ function RiskRegister() {
 
   const remove = async (risk: Risk) => {
     const { error } = await supabase.from("risks").delete().eq("id", risk.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Risk deleted");
     void queryClient.invalidateQueries({ queryKey: ["risks"] });
     void queryClient.invalidateQueries({ queryKey: ["dashboard"] });

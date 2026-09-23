@@ -50,7 +50,10 @@ function LogRisk() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth.organization) return toast.error("No organization assigned");
+    if (!auth.organization) {
+      toast.error("No organization assigned");
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.from("risks").insert({
       ...form,
@@ -58,7 +61,10 @@ function LogRisk() {
       owner: form.owner || auth.profile?.name || "",
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Risk logged");
     void queryClient.invalidateQueries({ queryKey: ["risks"] });
     void queryClient.invalidateQueries({ queryKey: ["dashboard"] });

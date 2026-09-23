@@ -54,7 +54,10 @@ function Controls() {
       control_ref: ref,
       control_name: name,
     });
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setRef("");
     setName("");
     toast.success("Control added");
@@ -64,7 +67,10 @@ function Controls() {
 
   const setStatus = async (control: Control, status: string) => {
     const { error } = await supabase.from("controls").update({ status }).eq("id", control.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     void queryClient.invalidateQueries({ queryKey: ["controls"] });
     void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
   };

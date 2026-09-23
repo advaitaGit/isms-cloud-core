@@ -22,9 +22,10 @@ export const Route = createFileRoute("/auth")({
       },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    mode: (search["mode"] as Mode | undefined) ?? undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { mode?: Mode } => {
+    const mode = search["mode"];
+    return mode === "signup" || mode === "signin" || mode === "forgot" ? { mode } : {};
+  },
   component: AuthPage,
 });
 
