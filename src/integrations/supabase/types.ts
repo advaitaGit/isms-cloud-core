@@ -14,16 +14,219 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      controls: {
+        Row: {
+          control_name: string
+          control_ref: string
+          created_at: string
+          id: string
+          organization_id: string
+          status: string
+        }
+        Insert: {
+          control_name: string
+          control_ref?: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          status?: string
+        }
+        Update: {
+          control_name?: string
+          control_ref?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "controls_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invites: {
+        Row: {
+          created_at: string
+          email: string
+          organization_id: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          organization_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          organization_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          monthly_price: number
+          name: string
+          seats: number
+          subscription_status: string
+          tier: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          monthly_price?: number
+          name: string
+          seats?: number
+          subscription_status?: string
+          tier?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          monthly_price?: number
+          name?: string
+          seats?: number
+          subscription_status?: string
+          tier?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          organization_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          name?: string
+          organization_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          organization_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      risks: {
+        Row: {
+          created_at: string
+          description: string
+          domain: string
+          id: string
+          organization_id: string
+          owner: string
+          severity: string
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          domain?: string
+          id?: string
+          organization_id: string
+          owner?: string
+          severity?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          domain?: string
+          id?: string
+          organization_id?: string
+          owner?: string
+          severity?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_org: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_org_admin: { Args: never; Returns: boolean }
+      is_system_owner: { Args: never; Returns: boolean }
+      org_is_active: { Args: { _org: string }; Returns: boolean }
+      user_org: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "system_owner"
+        | "org_admin"
+        | "manager"
+        | "auditor"
+        | "standard"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +353,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["system_owner", "org_admin", "manager", "auditor", "standard"],
+    },
   },
 } as const
