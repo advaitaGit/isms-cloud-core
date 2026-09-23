@@ -11,7 +11,7 @@ const DEMO = [
   { email: "admin@org2.com", name: "Org 2 Admin" },
 ];
 
-const DEMO_PASSWORD = "Password123!";
+const DEMO_PASSWORD = "Sentinel!Isms2026#demo";
 
 export const Route = createFileRoute("/api/public/seed-demo")({
   server: {
