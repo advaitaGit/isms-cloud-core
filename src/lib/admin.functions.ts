@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { AppRole } from "@/lib/types";
 
 /** Creates the caller's profile + role on first sign-in, using the invites table. */
 export const bootstrapProfile = createServerFn({ method: "POST" })
@@ -26,7 +27,7 @@ export const bootstrapProfile = createServerFn({ method: "POST" })
       .maybeSingle();
 
     let organizationId = invite?.organization_id ?? null;
-    let role = invite?.role ?? "org_admin";
+    let role: AppRole = (invite?.role as AppRole) ?? "org_admin";
 
     if (!invite) {
       // Brand-new self sign-up: give them their own trial organization.
@@ -77,7 +78,7 @@ async function assertCanManage(context: { userId: string; supabase: any }) {
 export const createOrgUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (input: { email: string; name: string; role: string; organizationId?: string }) => input,
+    (input: { email: string; name: string; role: AppRole; organizationId?: string }) => input,
   )
   .handler(async ({ data, context }) => {
     const { isOwner, organizationId } = await assertCanManage(context);
@@ -155,7 +156,7 @@ export const deleteOrgUser = createServerFn({ method: "POST" })
 
 export const setUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { userId: string; role: string }) => input)
+  .inputValidator((input: { userId: string; role: AppRole }) => input)
   .handler(async ({ data, context }) => {
     const { isOwner, organizationId } = await assertCanManage(context);
     if (data.role === "system_owner" && !isOwner) throw new Error("Forbidden");
