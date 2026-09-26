@@ -189,6 +189,14 @@ export const resetUserPassword = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!target) throw new Error("User not found");
     if (!isOwner && target.organization_id !== organizationId) throw new Error("Forbidden");
+    // TEMPORARY: admin password resets are disabled.
+    const { data: targetRoles } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId);
+    if ((targetRoles ?? []).some((r) => r.role === "org_admin" || r.role === "system_owner")) {
+      throw new Error("Password reset for admins is temporarily disabled");
+    }
     const tempPassword = `Isms-${crypto.randomUUID().slice(0, 12)}!`;
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       password: tempPassword,
@@ -322,6 +330,9 @@ export const resetOrgAdminPassword = createServerFn({ method: "POST" })
     const adminIds = new Set((roles ?? []).map((r) => r.user_id));
     const admin = (profiles ?? []).find((p) => adminIds.has(p.id));
     if (!admin) throw new Error("This organization has no admin yet");
+    // TEMPORARY: admin password resets are disabled.
+    const ADMIN_RESET_DISABLED = true as boolean;
+    if (ADMIN_RESET_DISABLED) throw new Error("Password reset for admins is temporarily disabled");
     const tempPassword = `Isms-${crypto.randomUUID().slice(0, 12)}!`;
     const { error } = await supabaseAdmin.auth.admin.updateUserById(admin.id, {
       password: tempPassword,
