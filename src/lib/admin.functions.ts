@@ -331,7 +331,8 @@ export const resetOrgAdminPassword = createServerFn({ method: "POST" })
     const admin = (profiles ?? []).find((p) => adminIds.has(p.id));
     if (!admin) throw new Error("This organization has no admin yet");
     // TEMPORARY: admin password resets are disabled.
-    throw new Error("Password reset for admins is temporarily disabled");
+    const ADMIN_RESET_DISABLED = true as boolean;
+    if (ADMIN_RESET_DISABLED) throw new Error("Password reset for admins is temporarily disabled");
     const tempPassword = `Isms-${crypto.randomUUID().slice(0, 12)}!`;
     const { error } = await supabaseAdmin.auth.admin.updateUserById(admin.id, {
       password: tempPassword,
