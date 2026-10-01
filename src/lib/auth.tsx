@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { bootstrapProfile } from "@/lib/admin.functions";
+import { logAuthEvent } from "@/lib/audit";
 import type { AppRole, Organization, Profile } from "@/lib/types";
 
 interface AuthValue {
@@ -14,6 +15,7 @@ interface AuthValue {
   role: AppRole | null;
   isSystemOwner: boolean;
   isOrgAdmin: boolean;
+  canViewLogs: boolean;
   readOnly: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -107,10 +109,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   const signOut = useCallback(async () => {
+    await logAuthEvent("auth.logout");
     await supabase.auth.signOut();
   }, []);
 
   const isSystemOwner = roles.includes("system_owner");
+  const isOrgAdmin = roles.includes("org_admin");
   const value: AuthValue = {
     loading,
     session,
@@ -120,7 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     roles,
     role: roles[0] ?? null,
     isSystemOwner,
-    isOrgAdmin: roles.includes("org_admin"),
+    isOrgAdmin,
+    canViewLogs: isSystemOwner || isOrgAdmin || roles.includes("manager"),
     readOnly: !isSystemOwner && organization?.subscription_status !== "Active",
     refresh,
     signOut,
