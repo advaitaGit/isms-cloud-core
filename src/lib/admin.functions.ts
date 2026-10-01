@@ -59,6 +59,37 @@ export const bootstrapProfile = createServerFn({ method: "POST" })
     return { created: true };
   });
 
+/** Writes an activity-log entry attributed to the calling user. Never throws. */
+async function audit(
+  admin: any,
+  actorId: string,
+  entry: {
+    organization_id: string | null;
+    action: string;
+    entity_type: string;
+    entity_id?: string | null;
+    summary: string;
+    details?: Record<string, unknown>;
+  },
+) {
+  try {
+    const { data: actor } = await admin
+      .from("profiles")
+      .select("email")
+      .eq("id", actorId)
+      .maybeSingle();
+    await admin.from("audit_logs").insert({
+      ...entry,
+      entity_id: entry.entity_id ?? null,
+      details: entry.details ?? {},
+      actor_id: actorId,
+      actor_email: actor?.email ?? "",
+    });
+  } catch (error) {
+    console.error("audit log failed", error);
+  }
+}
+
 async function assertCanManage(context: { userId: string; supabase: any }) {
   const { data: roles } = await context.supabase
     .from("user_roles")
@@ -130,6 +161,14 @@ export const createOrgUser = createServerFn({ method: "POST" })
       throw new Error(pErr.message);
     }
     await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role });
+    await audit(supabaseAdmin, context.userId, {
+      organization_id: targetOrg,
+      action: "user.created",
+      entity_type: "user",
+      entity_id: created.user.id,
+      summary: data.email.toLowerCase(),
+      details: { name: data.name, role: data.role },
+    });
 
     return { userId: created.user.id, tempPassword };
   });
@@ -151,6 +190,13 @@ export const deleteOrgUser = createServerFn({ method: "POST" })
     await supabaseAdmin.from("invites").delete().eq("email", target.email);
     await supabaseAdmin.auth.admin.deleteUser(data.userId);
     await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
+    await audit(supabaseAdmin, context.userId, {
+      organization_id: target.organization_id,
+      action: "user.deleted",
+      entity_type: "user",
+      entity_id: data.userId,
+      summary: target.email,
+    });
     return { ok: true };
   });
 
@@ -168,11 +214,23 @@ export const setUserRole = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!target) throw new Error("User not found");
     if (!isOwner && target.organization_id !== organizationId) throw new Error("Forbidden");
+    const { data: prevRoles } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId);
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
     await supabaseAdmin.from("user_roles").insert({ user_id: data.userId, role: data.role });
     await supabaseAdmin
       .from("invites")
       .upsert({ email: target.email, organization_id: target.organization_id, role: data.role });
+    await audit(supabaseAdmin, context.userId, {
+      organization_id: target.organization_id,
+      action: "user.role_changed",
+      entity_type: "user",
+      entity_id: data.userId,
+      summary: target.email,
+      details: { role: { from: prevRoles?.[0]?.role ?? null, to: data.role } },
+    });
     return { ok: true };
   });
 
@@ -184,7 +242,7 @@ export const resetUserPassword = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: target } = await supabaseAdmin
       .from("profiles")
-      .select("organization_id")
+      .select("organization_id, email")
       .eq("id", data.userId)
       .maybeSingle();
     if (!target) throw new Error("User not found");
@@ -202,6 +260,13 @@ export const resetUserPassword = createServerFn({ method: "POST" })
       password: tempPassword,
     });
     if (error) throw new Error(error.message);
+    await audit(supabaseAdmin, context.userId, {
+      organization_id: target.organization_id,
+      action: "user.password_reset",
+      entity_type: "user",
+      entity_id: data.userId,
+      summary: target.email,
+    });
     return { tempPassword };
   });
 
@@ -280,6 +345,14 @@ export const createOrganization = createServerFn({ method: "POST" })
         role: "org_admin",
       });
     }
+    await audit(supabaseAdmin, context.userId, {
+      organization_id: org.id,
+      action: "organization.created",
+      entity_type: "organization",
+      entity_id: org.id,
+      summary: data.name,
+      details: { ...data },
+    });
     return { id: org.id };
   });
 
@@ -303,8 +376,26 @@ export const updateOrganization = createServerFn({ method: "POST" })
     if (!isOwner) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { id, ...patch } = data;
+    const { data: before } = await supabaseAdmin
+      .from("organizations")
+      .select("name, subscription_status, tier, seats, monthly_price")
+      .eq("id", id)
+      .maybeSingle();
     const { error } = await supabaseAdmin.from("organizations").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
+    const changes: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(patch)) {
+      const prev = (before as Record<string, unknown> | null)?.[k];
+      if (v !== undefined && prev !== v) changes[k] = { from: prev ?? null, to: v };
+    }
+    await audit(supabaseAdmin, context.userId, {
+      organization_id: id,
+      action: "organization.updated",
+      entity_type: "organization",
+      entity_id: id,
+      summary: before?.name ?? "",
+      details: changes,
+    });
     return { ok: true };
   });
 
