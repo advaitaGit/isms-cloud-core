@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   Building2,
   Globe2,
+  History,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -41,6 +42,7 @@ const NAV: NavItem[] = [
     icon: Users,
     show: (a) => a.isOrgAdmin || a.isSystemOwner,
   },
+  { to: "/logs", label: "Activity Log", icon: History, show: (a) => a.canViewLogs },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

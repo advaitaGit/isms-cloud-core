@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { logAuthEvent } from "@/lib/audit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,7 @@ function ResetPassword() {
       toast.error(error.message);
       return;
     }
+    await logAuthEvent("auth.password_change");
     toast.success("Password updated.");
     navigate({ to: "/dashboard", replace: true });
   };
