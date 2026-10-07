@@ -18,6 +18,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGlobalRouteImport } from './routes/_authenticated/global'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
 import { Route as AuthenticatedOrganizationsRouteImport } from './routes/_authenticated/organizations'
+import { Route as AuthenticatedStructureRouteImport } from './routes/_authenticated/structure'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedRisksIndexRouteImport } from './routes/_authenticated/risks.index'
 import { Route as AuthenticatedRisksNewRouteImport } from './routes/_authenticated/risks.new'
@@ -67,6 +68,11 @@ const AuthenticatedOrganizationsRoute =
     path: '/organizations',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStructureRoute = AuthenticatedStructureRouteImport.update({
+  id: '/structure',
+  path: '/structure',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/global': typeof AuthenticatedGlobalRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
+  '/structure': typeof AuthenticatedStructureRoute
   '/users': typeof AuthenticatedUsersRoute
   '/risks/new': typeof AuthenticatedRisksNewRoute
   '/risks/': typeof AuthenticatedRisksIndexRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/global': typeof AuthenticatedGlobalRoute
   '/logs': typeof AuthenticatedLogsRoute
   '/organizations': typeof AuthenticatedOrganizationsRoute
+  '/structure': typeof AuthenticatedStructureRoute
   '/users': typeof AuthenticatedUsersRoute
   '/risks/new': typeof AuthenticatedRisksNewRoute
   '/risks': typeof AuthenticatedRisksIndexRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/_authenticated/global': typeof AuthenticatedGlobalRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
   '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
+  '/_authenticated/structure': typeof AuthenticatedStructureRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/risks/new': typeof AuthenticatedRisksNewRoute
   '/_authenticated/risks/': typeof AuthenticatedRisksIndexRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/global'
     | '/logs'
     | '/organizations'
+    | '/structure'
     | '/users'
     | '/risks/new'
     | '/risks/'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/global'
     | '/logs'
     | '/organizations'
+    | '/structure'
     | '/users'
     | '/risks/new'
     | '/risks'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/_authenticated/global'
     | '/_authenticated/logs'
     | '/_authenticated/organizations'
+    | '/_authenticated/structure'
     | '/_authenticated/users'
     | '/_authenticated/risks/new'
     | '/_authenticated/risks/'
@@ -239,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrganizationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/structure': {
+      id: '/_authenticated/structure'
+      path: '/structure'
+      fullPath: '/structure'
+      preLoaderRoute: typeof AuthenticatedStructureRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users': {
       id: '/_authenticated/users'
       path: '/users'
@@ -269,6 +288,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGlobalRoute: typeof AuthenticatedGlobalRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
   AuthenticatedOrganizationsRoute: typeof AuthenticatedOrganizationsRoute
+  AuthenticatedStructureRoute: typeof AuthenticatedStructureRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedRisksNewRoute: typeof AuthenticatedRisksNewRoute
   AuthenticatedRisksIndexRoute: typeof AuthenticatedRisksIndexRoute
@@ -280,6 +300,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGlobalRoute: AuthenticatedGlobalRoute,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
   AuthenticatedOrganizationsRoute: AuthenticatedOrganizationsRoute,
+  AuthenticatedStructureRoute: AuthenticatedStructureRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedRisksNewRoute: AuthenticatedRisksNewRoute,
   AuthenticatedRisksIndexRoute: AuthenticatedRisksIndexRoute,
