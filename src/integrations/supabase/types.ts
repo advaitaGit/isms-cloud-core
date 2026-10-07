@@ -162,6 +162,8 @@ export type Database = {
           id: string
           name: string
           organization_id: string | null
+          policy_level: string
+          sub_organization_id: string | null
         }
         Insert: {
           created_at?: string
@@ -169,6 +171,8 @@ export type Database = {
           id: string
           name?: string
           organization_id?: string | null
+          policy_level?: string
+          sub_organization_id?: string | null
         }
         Update: {
           created_at?: string
@@ -176,6 +180,8 @@ export type Database = {
           id?: string
           name?: string
           organization_id?: string | null
+          policy_level?: string
+          sub_organization_id?: string | null
         }
         Relationships: [
           {
@@ -185,41 +191,96 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "profiles_sub_organization_id_fkey"
+            columns: ["sub_organization_id"]
+            isOneToOne: false
+            referencedRelation: "sub_organizations"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      risk_library: {
+        Row: {
+          code: string
+          description: string
+          domain: string
+          id: string
+          keywords: string
+          severity: string
+          suggested_control: string
+          title: string
+        }
+        Insert: {
+          code: string
+          description?: string
+          domain?: string
+          id?: string
+          keywords?: string
+          severity?: string
+          suggested_control?: string
+          title: string
+        }
+        Update: {
+          code?: string
+          description?: string
+          domain?: string
+          id?: string
+          keywords?: string
+          severity?: string
+          suggested_control?: string
+          title?: string
+        }
+        Relationships: []
       }
       risks: {
         Row: {
           created_at: string
+          created_by: string | null
           description: string
           domain: string
           id: string
           organization_id: string
           owner: string
+          review_note: string
+          reviewed_by: string | null
           severity: string
           status: string
+          sub_organization_id: string | null
           title: string
+          workflow_status: string
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           description?: string
           domain?: string
           id?: string
           organization_id: string
           owner?: string
+          review_note?: string
+          reviewed_by?: string | null
           severity?: string
           status?: string
+          sub_organization_id?: string | null
           title: string
+          workflow_status?: string
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           description?: string
           domain?: string
           id?: string
           organization_id?: string
           owner?: string
+          review_note?: string
+          reviewed_by?: string | null
           severity?: string
           status?: string
+          sub_organization_id?: string | null
           title?: string
+          workflow_status?: string
         }
         Relationships: [
           {
@@ -227,6 +288,55 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risks_sub_organization_id_fkey"
+            columns: ["sub_organization_id"]
+            isOneToOne: false
+            referencedRelation: "sub_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sub_organizations: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          organization_id: string
+          parent_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name: string
+          organization_id: string
+          parent_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          organization_id?: string
+          parent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_organizations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sub_organizations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "sub_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -249,11 +359,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_scope_roles: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          role: string
+          sub_organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          role?: string
+          sub_organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          role?: string
+          sub_organization_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_scope_roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_scope_roles_sub_organization_id_fkey"
+            columns: ["sub_organization_id"]
+            isOneToOne: false
+            referencedRelation: "sub_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_approve: { Args: never; Returns: boolean }
       current_org: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -264,6 +417,7 @@ export type Database = {
       }
       is_org_admin: { Args: never; Returns: boolean }
       is_system_owner: { Args: never; Returns: boolean }
+      my_policy: { Args: never; Returns: string }
       org_is_active: { Args: { _org: string }; Returns: boolean }
       user_org: { Args: { _user_id: string }; Returns: string }
     }

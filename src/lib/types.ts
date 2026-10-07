@@ -45,6 +45,8 @@ export interface Profile {
   name: string;
   email: string;
   created_at: string;
+  sub_organization_id?: string | null;
+  policy_level?: string;
 }
 
 export interface Risk {
@@ -57,6 +59,10 @@ export interface Risk {
   severity: string;
   owner: string;
   created_at: string;
+  sub_organization_id?: string | null;
+  workflow_status?: string;
+  created_by?: string | null;
+  review_note?: string;
 }
 
 export interface Control {
@@ -65,5 +71,27 @@ export interface Control {
   control_ref: string;
   control_name: string;
   status: string;
+  created_at: string;
+}
+
+export const POLICY_LEVELS = ["view", "edit", "submit", "approve"] as const;
+export const POLICY_LABELS: Record<string, string> = {
+  view: "View only",
+  edit: "View + edit drafts",
+  submit: "View, edit & submit",
+  approve: "Approver",
+};
+export const WORKFLOW_STYLES: Record<string, string> = {
+  Draft: "bg-muted text-muted-foreground",
+  Submitted: "bg-info/15 text-info",
+  Approved: "bg-success/15 text-success",
+  Returned: "bg-warning/20 text-warning",
+};
+export interface SubOrganization {
+  id: string;
+  organization_id: string;
+  parent_id: string | null;
+  name: string;
+  kind: string;
   created_at: string;
 }

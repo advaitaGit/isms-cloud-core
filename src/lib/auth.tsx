@@ -17,6 +17,8 @@ interface AuthValue {
   isOrgAdmin: boolean;
   canViewLogs: boolean;
   readOnly: boolean;
+  policy: string;
+  canApprove: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -126,6 +128,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isSystemOwner,
     isOrgAdmin,
     canViewLogs: isSystemOwner || isOrgAdmin || roles.includes("manager"),
+    policy: profile?.policy_level ?? "submit",
+    canApprove: isSystemOwner || isOrgAdmin || profile?.policy_level === "approve",
     readOnly: !isSystemOwner && organization?.subscription_status !== "Active",
     refresh,
     signOut,

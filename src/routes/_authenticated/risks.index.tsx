@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Check, Send, Trash2, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RISK_SEVERITIES, RISK_STATUSES, type Risk } from "@/lib/types";
+import { RISK_SEVERITIES, RISK_STATUSES, WORKFLOW_STYLES, type Risk } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/risks/")({
   component: RiskRegister,
@@ -74,6 +74,20 @@ function RiskRegister() {
     void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
   };
 
+  const setWorkflow = async (risk: Risk, next: string) => {
+    const note = next === "Returned" ? (window.prompt("Reason for returning?") ?? "") : "";
+    const { error } = await supabase
+      .from("risks")
+      .update({ workflow_status: next, review_note: note, reviewed_by: next === "Submitted" ? null : auth.user?.id })
+      .eq("id", risk.id);
+    if (error) return void toast.error(error.message);
+    toast.success(`Risk ${next.toLowerCase()}`);
+    void queryClient.invalidateQueries({ queryKey: ["risks"] });
+  };
+  const locked = (r: Risk) =>
+    !auth.canApprove && (auth.policy === "view" || ["Submitted", "Approved"].includes(r.workflow_status ?? ""));
+  const pending = risks.filter((r) => r.workflow_status === "Submitted").length;
+
   const remove = async (risk: Risk) => {
     const { error } = await supabase.from("risks").delete().eq("id", risk.id);
     if (error) {
@@ -89,9 +103,9 @@ function RiskRegister() {
     <>
       <PageHeader
         title="Risk Register"
-        description="All information security risks recorded for your organization."
+        description={auth.canApprove && pending ? `${pending} risk(s) waiting for your approval.` : "All information security risks recorded for your organization."}
         action={
-          !auth.readOnly ? (
+          !auth.readOnly && auth.policy !== "view" ? (
             <Button asChild>
               <Link to="/risks/new">Log a Risk</Link>
             </Button>
@@ -144,6 +158,7 @@ function RiskRegister() {
               <TableHead>Domain</TableHead>
               <TableHead>Severity</TableHead>
               <TableHead>Owner</TableHead>
+              <TableHead>Approval</TableHead>
               <TableHead className="w-44">Status</TableHead>
               <TableHead className="w-12" />
             </TableRow>
@@ -169,10 +184,18 @@ function RiskRegister() {
                 </TableCell>
                 <TableCell className="text-sm">{risk.owner || "—"}</TableCell>
                 <TableCell>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${WORKFLOW_STYLES[risk.workflow_status ?? "Approved"]}`}>
+                    {risk.workflow_status ?? "Approved"}
+                  </span>
+                  {risk.workflow_status === "Returned" && risk.review_note && (
+                    <p className="mt-1 max-w-40 truncate text-xs text-muted-foreground" title={risk.review_note}>{risk.review_note}</p>
+                  )}
+                </TableCell>
+                <TableCell>
                   <Select
                     value={risk.status}
                     onValueChange={(v) => updateStatus(risk, v)}
-                    disabled={auth.readOnly}
+                    disabled={auth.readOnly || locked(risk)}
                   >
                     <SelectTrigger className="h-8">
                       <SelectValue />
@@ -186,11 +209,26 @@ function RiskRegister() {
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap text-right">
+                  {auth.canApprove && risk.workflow_status === "Submitted" && !auth.readOnly && (
+                    <>
+                      <Button variant="ghost" size="icon" title="Approve" onClick={() => setWorkflow(risk, "Approved")}>
+                        <Check className="size-4 text-success" />
+                      </Button>
+                      <Button variant="ghost" size="icon" title="Return" onClick={() => setWorkflow(risk, "Returned")}>
+                        <Undo2 className="size-4 text-warning" />
+                      </Button>
+                    </>
+                  )}
+                  {!auth.canApprove && auth.policy === "submit" && ["Draft", "Returned"].includes(risk.workflow_status ?? "") && !auth.readOnly && (
+                    <Button variant="ghost" size="icon" title="Submit for approval" onClick={() => setWorkflow(risk, "Submitted")}>
+                      <Send className="size-4 text-info" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
-                    disabled={auth.readOnly}
+                    disabled={auth.readOnly || locked(risk)}
                     onClick={() => remove(risk)}
                   >
                     <Trash2 className="size-4 text-muted-foreground" />
@@ -200,7 +238,7 @@ function RiskRegister() {
             ))}
             {!isLoading && filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
                   No risks match your filters.
                 </TableCell>
               </TableRow>
