@@ -10,6 +10,7 @@ import {
   PlusCircle,
   ShieldCheck,
   Users,
+  Network,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
@@ -34,12 +35,18 @@ const NAV: NavItem[] = [
   },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: () => true },
   { to: "/risks", label: "Risk Register", icon: ListChecks, show: () => true },
-  { to: "/risks/new", label: "Log a Risk", icon: PlusCircle, show: (a) => !a.readOnly },
+  { to: "/risks/new", label: "Log a Risk", icon: PlusCircle, show: (a) => !a.readOnly && a.policy !== "view" },
   { to: "/controls", label: "Annex A Controls", icon: ShieldCheck, show: () => true },
   {
     to: "/users",
     label: "User Management",
     icon: Users,
+    show: (a) => a.isOrgAdmin || a.isSystemOwner,
+  },
+  {
+    to: "/structure",
+    label: "Departments & Policies",
+    icon: Network,
     show: (a) => a.isOrgAdmin || a.isSystemOwner,
   },
   { to: "/logs", label: "Activity Log", icon: History, show: (a) => a.canViewLogs },
