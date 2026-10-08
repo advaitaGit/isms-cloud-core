@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_items: {
+        Row: {
+          assessment_id: string
+          evidence: string
+          id: string
+          organization_id: string
+          ref: string
+          requirement: string
+          response: string
+          section: string
+          sort: number
+        }
+        Insert: {
+          assessment_id: string
+          evidence?: string
+          id?: string
+          organization_id: string
+          ref: string
+          requirement: string
+          response?: string
+          section?: string
+          sort?: number
+        }
+        Update: {
+          assessment_id?: string
+          evidence?: string
+          id?: string
+          organization_id?: string
+          ref?: string
+          requirement?: string
+          response?: string
+          section?: string
+          sort?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_items_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          audit_type: string
+          auditor: string
+          created_at: string
+          created_by: string | null
+          id: string
+          organization_id: string
+          release_roles: string[]
+          released: boolean
+          released_at: string | null
+          standard: string
+          status: string
+          title: string
+        }
+        Insert: {
+          audit_type?: string
+          auditor?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id: string
+          release_roles?: string[]
+          released?: boolean
+          released_at?: string | null
+          standard?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          audit_type?: string
+          auditor?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id?: string
+          release_roles?: string[]
+          released?: boolean
+          released_at?: string | null
+          standard?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -118,6 +222,73 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nonconformities: {
+        Row: {
+          assessment_id: string
+          corrective_action: string
+          created_at: string
+          due_date: string | null
+          grade: string
+          id: string
+          item_id: string | null
+          organization_id: string
+          owner: string
+          ref: string
+          status: string
+          title: string
+        }
+        Insert: {
+          assessment_id: string
+          corrective_action?: string
+          created_at?: string
+          due_date?: string | null
+          grade?: string
+          id?: string
+          item_id?: string | null
+          organization_id: string
+          owner?: string
+          ref?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          assessment_id?: string
+          corrective_action?: string
+          created_at?: string
+          due_date?: string | null
+          grade?: string
+          id?: string
+          item_id?: string | null
+          organization_id?: string
+          owner?: string
+          ref?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nonconformities_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonconformities_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonconformities_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -407,6 +578,8 @@ export type Database = {
     }
     Functions: {
       can_approve: { Args: never; Returns: boolean }
+      can_audit: { Args: never; Returns: boolean }
+      can_view_assessment: { Args: { _id: string }; Returns: boolean }
       current_org: { Args: never; Returns: string }
       has_role: {
         Args: {
