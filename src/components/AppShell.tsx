@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Users,
   Network,
+  ClipboardCheck,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
@@ -36,6 +37,7 @@ const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: () => true },
   { to: "/risks", label: "Risk Register", icon: ListChecks, show: () => true },
   { to: "/risks/new", label: "Log a Risk", icon: PlusCircle, show: (a) => !a.readOnly && a.policy !== "view" },
+  { to: "/assessments", label: "Gap Assessments", icon: ClipboardCheck, show: () => true },
   { to: "/controls", label: "Annex A Controls", icon: ShieldCheck, show: () => true },
   {
     to: "/users",
@@ -77,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {NAV.filter((item) => item.show(auth)).map((item) => {
-            const active = pathname === item.to;
+            const active = pathname === item.to || (item.to === "/assessments" && pathname.startsWith("/assessments"));
             return (
               <Link
                 key={item.to}
