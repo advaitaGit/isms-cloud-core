@@ -78,7 +78,7 @@ function RiskRegister() {
     const note = next === "Returned" ? (window.prompt("Reason for returning?") ?? "") : "";
     const { error } = await supabase
       .from("risks")
-      .update({ workflow_status: next, review_note: note, reviewed_by: next === "Submitted" ? null : auth.user?.id })
+      .update({ workflow_status: next, review_note: note, reviewed_by: next === "Submitted" ? null : (auth.user?.id ?? null) })
       .eq("id", risk.id);
     if (error) return void toast.error(error.message);
     toast.success(`Risk ${next.toLowerCase()}`);
