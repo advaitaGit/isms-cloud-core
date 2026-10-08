@@ -1,4 +1,11 @@
-export type AppRole = "system_owner" | "org_admin" | "manager" | "auditor" | "standard";
+export type AppRole =
+  | "system_owner"
+  | "org_admin"
+  | "manager"
+  | "auditor"
+  | "standard"
+  | "director"
+  | "analyst";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   system_owner: "System Owner",
@@ -6,9 +13,11 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   manager: "Manager",
   auditor: "Auditor",
   standard: "Standard",
+  director: "Director",
+  analyst: "Analyst",
 };
 
-export const ASSIGNABLE_ROLES: AppRole[] = ["org_admin", "manager", "auditor", "standard"];
+export const ASSIGNABLE_ROLES: AppRole[] = ["org_admin", "manager", "auditor", "director", "analyst", "standard"];
 
 export const RISK_DOMAINS = [
   "Internal",

@@ -20,6 +20,8 @@ import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedOrganizationsRouteImport } from './routes/_authenticated/organizations'
 import { Route as AuthenticatedStructureRouteImport } from './routes/_authenticated/structure'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
+import { Route as AuthenticatedAssessmentsIndexRouteImport } from './routes/_authenticated/assessments.index'
+import { Route as AuthenticatedAssessmentsIdRouteImport } from './routes/_authenticated/assessments.$id'
 import { Route as AuthenticatedRisksIndexRouteImport } from './routes/_authenticated/risks.index'
 import { Route as AuthenticatedRisksNewRouteImport } from './routes/_authenticated/risks.new'
 
@@ -78,6 +80,18 @@ const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAssessmentsIndexRoute =
+  AuthenticatedAssessmentsIndexRouteImport.update({
+    id: '/assessments/',
+    path: '/assessments/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAssessmentsIdRoute =
+  AuthenticatedAssessmentsIdRouteImport.update({
+    id: '/assessments/$id',
+    path: '/assessments/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRisksIndexRoute = AuthenticatedRisksIndexRouteImport.update({
   id: '/risks/',
   path: '/risks/',
@@ -100,7 +114,9 @@ export interface FileRoutesByFullPath {
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/structure': typeof AuthenticatedStructureRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/assessments/$id': typeof AuthenticatedAssessmentsIdRoute
   '/risks/new': typeof AuthenticatedRisksNewRoute
+  '/assessments/': typeof AuthenticatedAssessmentsIndexRoute
   '/risks/': typeof AuthenticatedRisksIndexRoute
 }
 export interface FileRoutesByTo {
@@ -114,7 +130,9 @@ export interface FileRoutesByTo {
   '/organizations': typeof AuthenticatedOrganizationsRoute
   '/structure': typeof AuthenticatedStructureRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/assessments/$id': typeof AuthenticatedAssessmentsIdRoute
   '/risks/new': typeof AuthenticatedRisksNewRoute
+  '/assessments': typeof AuthenticatedAssessmentsIndexRoute
   '/risks': typeof AuthenticatedRisksIndexRoute
 }
 export interface FileRoutesById {
@@ -130,7 +148,9 @@ export interface FileRoutesById {
   '/_authenticated/organizations': typeof AuthenticatedOrganizationsRoute
   '/_authenticated/structure': typeof AuthenticatedStructureRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
+  '/_authenticated/assessments/$id': typeof AuthenticatedAssessmentsIdRoute
   '/_authenticated/risks/new': typeof AuthenticatedRisksNewRoute
+  '/_authenticated/assessments/': typeof AuthenticatedAssessmentsIndexRoute
   '/_authenticated/risks/': typeof AuthenticatedRisksIndexRoute
 }
 export interface FileRouteTypes {
@@ -146,7 +166,9 @@ export interface FileRouteTypes {
     | '/organizations'
     | '/structure'
     | '/users'
+    | '/assessments/$id'
     | '/risks/new'
+    | '/assessments/'
     | '/risks/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -160,7 +182,9 @@ export interface FileRouteTypes {
     | '/organizations'
     | '/structure'
     | '/users'
+    | '/assessments/$id'
     | '/risks/new'
+    | '/assessments'
     | '/risks'
   id:
     | '__root__'
@@ -175,7 +199,9 @@ export interface FileRouteTypes {
     | '/_authenticated/organizations'
     | '/_authenticated/structure'
     | '/_authenticated/users'
+    | '/_authenticated/assessments/$id'
     | '/_authenticated/risks/new'
+    | '/_authenticated/assessments/'
     | '/_authenticated/risks/'
   fileRoutesById: FileRoutesById
 }
@@ -265,6 +291,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/assessments/': {
+      id: '/_authenticated/assessments/'
+      path: '/assessments'
+      fullPath: '/assessments/'
+      preLoaderRoute: typeof AuthenticatedAssessmentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assessments/$id': {
+      id: '/_authenticated/assessments/$id'
+      path: '/assessments/$id'
+      fullPath: '/assessments/$id'
+      preLoaderRoute: typeof AuthenticatedAssessmentsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/risks/': {
       id: '/_authenticated/risks/'
       path: '/risks'
@@ -290,7 +330,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOrganizationsRoute: typeof AuthenticatedOrganizationsRoute
   AuthenticatedStructureRoute: typeof AuthenticatedStructureRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
+  AuthenticatedAssessmentsIdRoute: typeof AuthenticatedAssessmentsIdRoute
   AuthenticatedRisksNewRoute: typeof AuthenticatedRisksNewRoute
+  AuthenticatedAssessmentsIndexRoute: typeof AuthenticatedAssessmentsIndexRoute
   AuthenticatedRisksIndexRoute: typeof AuthenticatedRisksIndexRoute
 }
 
@@ -302,7 +344,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOrganizationsRoute: AuthenticatedOrganizationsRoute,
   AuthenticatedStructureRoute: AuthenticatedStructureRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
+  AuthenticatedAssessmentsIdRoute: AuthenticatedAssessmentsIdRoute,
   AuthenticatedRisksNewRoute: AuthenticatedRisksNewRoute,
+  AuthenticatedAssessmentsIndexRoute: AuthenticatedAssessmentsIndexRoute,
   AuthenticatedRisksIndexRoute: AuthenticatedRisksIndexRoute,
 }
 
