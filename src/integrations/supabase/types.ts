@@ -200,6 +200,50 @@ export type Database = {
           },
         ]
       }
+      dashboards: {
+        Row: {
+          active_layout: number
+          created_at: string
+          dataset: Json | null
+          id: string
+          layouts: Json
+          name: string
+          organization_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_layout?: number
+          created_at?: string
+          dataset?: Json | null
+          id?: string
+          layouts?: Json
+          name?: string
+          organization_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          active_layout?: number
+          created_at?: string
+          dataset?: Json | null
+          id?: string
+          layouts?: Json
+          name?: string
+          organization_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboards_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invites: {
         Row: {
           created_at: string
