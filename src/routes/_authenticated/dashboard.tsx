@@ -12,7 +12,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AlertOctagon, Activity, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { AlertOctagon, Activity, ShieldCheck, CheckCircle2, ClipboardCheck } from "lucide-react";
+import { readiness } from "@/lib/assessment";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/AppShell";
@@ -58,13 +59,19 @@ function Dashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard", orgId],
     queryFn: async () => {
-      const [risksRes, controlsRes] = await Promise.all([
+      const [risksRes, controlsRes, latest] = await Promise.all([
         supabase.from("risks").select("*"),
         supabase.from("controls").select("*"),
+        supabase.from("assessments").select("id").order("created_at", { ascending: false }).limit(1),
       ]);
+      const aid = latest.data?.[0]?.id;
+      const items = aid
+        ? ((await supabase.from("assessment_items").select("response").eq("assessment_id", aid)).data ?? [])
+        : [];
       return {
         risks: (risksRes.data ?? []) as Risk[],
         controls: (controlsRes.data ?? []) as Control[],
+        readiness: aid ? readiness(items).score : null,
       };
     },
   });
@@ -95,7 +102,7 @@ function Dashboard() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Kpi label="Total active risks" value={active.length} icon={Activity} tone="var(--chart-1)" />
         <Kpi
           label="Critical risks"
@@ -114,6 +121,12 @@ function Dashboard() {
           value={risks.filter((r) => r.status === "Resolved").length}
           icon={CheckCircle2}
           tone="var(--chart-2)"
+        />
+        <Kpi
+          label="Audit readiness"
+          value={data?.readiness == null ? "—" : `${data.readiness}%`}
+          icon={ClipboardCheck}
+          tone="var(--chart-3)"
         />
       </div>
 
