@@ -103,6 +103,7 @@ function Dashboard() {
   useEffect(() => {
     if (!dashboards.length) return;
     const d = dashboards.find((x) => x.id === selected) ?? dashboards[0];
+    if (!d) return;
     if (!selected) setSelected(d.id);
     if (!dirty || draft?.id !== d.id) {
       setDraft(structuredClone(d));
@@ -246,7 +247,7 @@ function Dashboard() {
         onClose={() => setRename(null)}
         onSave={(name) => {
           const next = structuredClone(draft);
-          if (rename === "layout") next.layouts[layoutIdx].name = name;
+          if (rename === "layout" && next.layouts[layoutIdx]) next.layouts[layoutIdx].name = name;
           else next.name = name;
           setDraft(next);
           void save(next);
@@ -288,7 +289,7 @@ function AddWidgetDialog({ open, onOpenChange, metrics, onAdd }: {
             <Label>Data</Label>
             <Select value={metric} onValueChange={setMetric}>
               <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{keys.map((k) => <SelectItem key={k} value={k}>{metrics[k].kpi ? "KPI · " : ""}{metrics[k].label}</SelectItem>)}</SelectContent>
+              <SelectContent>{keys.map((k) => <SelectItem key={k} value={k}>{metrics[k]?.kpi ? "KPI · " : ""}{metrics[k]?.label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           {!isKpi && (
