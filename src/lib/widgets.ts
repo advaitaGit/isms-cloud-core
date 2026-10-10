@@ -65,7 +65,8 @@ export const METRICS: Record<string, { label: string; kpi?: boolean; compute: (d
 
 /** Metrics for an imported dataset: count rows grouped by each column, or sum numeric columns. */
 export function datasetMetrics(rows: Record<string, string>[]) {
-  const cols = rows.length ? Object.keys(rows[0]) : [];
+  const cols = rows[0] ? Object.keys(rows[0]) : [];
+  const first = cols[0] ?? "";
   const out: Record<string, { label: string; compute: () => Row[] }> = {};
   for (const c of cols) {
     const numeric = rows.every((r) => r[c] === "" || !isNaN(Number(r[c])));
@@ -77,10 +78,10 @@ export function datasetMetrics(rows: Record<string, string>[]) {
         return [...m].map(([name, value]) => ({ name, value })).slice(0, 30);
       },
     };
-    if (numeric && cols[0] !== c)
+    if (numeric && first !== c)
       out[`ds_sum:${c}`] = {
-        label: `${c} by ${cols[0]}`,
-        compute: () => rows.map((r) => ({ name: r[cols[0]] ?? "", value: Number(r[c]) || 0 })).slice(0, 50),
+        label: `${c} by ${first}`,
+        compute: () => rows.map((r) => ({ name: r[first] ?? "", value: Number(r[c]) || 0 })).slice(0, 50),
       };
   }
   return out;
