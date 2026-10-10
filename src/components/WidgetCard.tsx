@@ -100,20 +100,14 @@ function renderChart(type: WidgetType, rows: Row[]) {
         </table>
       </div>
     );
-  const axes = [
-    <CartesianGrid key="g" strokeDasharray="3 3" stroke="var(--border)" vertical={false} />,
-    <XAxis key="x" dataKey="name" tickLine={false} axisLine={false} fontSize={11} />,
-    <YAxis key="y" allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} width={32} />,
-    <Tooltip key="t" cursor={{ fill: "var(--muted)" }} />,
-  ];
   return (
     <ResponsiveContainer width="100%" height="100%">
       {type === "bar" ? (
-        <BarChart data={rows}>{axes}<Bar dataKey="value" radius={[6, 6, 0, 0]} fill="var(--chart-1)" /></BarChart>
+        <BarChart data={rows}><CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} /><XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={11} /><YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} width={32} /><Tooltip cursor={{ fill: "var(--muted)" }} /><Bar dataKey="value" radius={[6, 6, 0, 0]} fill="var(--chart-1)" /></BarChart>
       ) : type === "line" ? (
-        <LineChart data={rows}>{axes}<Line dataKey="value" type="monotone" stroke="var(--chart-1)" strokeWidth={2} dot={{ r: 3 }} /></LineChart>
+        <LineChart data={rows}><CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} /><XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={11} /><YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} width={32} /><Tooltip cursor={{ fill: "var(--muted)" }} /><Line dataKey="value" type="monotone" stroke="var(--chart-1)" strokeWidth={2} dot={{ r: 3 }} /></LineChart>
       ) : type === "area" ? (
-        <AreaChart data={rows}>{axes}<Area dataKey="value" type="monotone" stroke="var(--chart-2)" fill="var(--chart-2)" fillOpacity={0.25} /></AreaChart>
+        <AreaChart data={rows}><CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} /><XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={11} /><YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} width={32} /><Tooltip cursor={{ fill: "var(--muted)" }} /><Area dataKey="value" type="monotone" stroke="var(--chart-2)" fill="var(--chart-2)" fillOpacity={0.25} /></AreaChart>
       ) : (
         <PieChart>
           <Pie data={rows.filter((r) => r.value > 0)} dataKey="value" nameKey="name" innerRadius="55%" outerRadius="85%">
