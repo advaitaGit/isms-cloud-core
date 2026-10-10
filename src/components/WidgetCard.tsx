@@ -100,14 +100,12 @@ function renderChart(type: WidgetType, rows: Row[]) {
         </table>
       </div>
     );
-  const axes = (
-    <>
-      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-      <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={11} />
-      <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} width={32} />
-      <Tooltip cursor={{ fill: "var(--muted)" }} />
-    </>
-  );
+  const axes = [
+    <CartesianGrid key="g" strokeDasharray="3 3" stroke="var(--border)" vertical={false} />,
+    <XAxis key="x" dataKey="name" tickLine={false} axisLine={false} fontSize={11} />,
+    <YAxis key="y" allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} width={32} />,
+    <Tooltip key="t" cursor={{ fill: "var(--muted)" }} />,
+  ];
   return (
     <ResponsiveContainer width="100%" height="100%">
       {type === "bar" ? (
