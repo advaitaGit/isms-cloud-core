@@ -209,6 +209,7 @@ export type Database = {
           layouts: Json
           name: string
           organization_id: string | null
+          source: Json | null
           updated_at: string
           user_id: string
         }
@@ -220,6 +221,7 @@ export type Database = {
           layouts?: Json
           name?: string
           organization_id?: string | null
+          source?: Json | null
           updated_at?: string
           user_id?: string
         }
@@ -231,6 +233,7 @@ export type Database = {
           layouts?: Json
           name?: string
           organization_id?: string | null
+          source?: Json | null
           updated_at?: string
           user_id?: string
         }
