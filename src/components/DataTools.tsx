@@ -197,14 +197,14 @@ export function DataMenu({ dataset, source, orgId, disabled, onDataset, onRisksI
         if (!orgId) throw new Error("No organization");
         const pick = <T extends string>(v: string | undefined, list: readonly T[], d: T) => (list.find((x) => x.toLowerCase() === (v ?? "").toLowerCase()) ?? d);
         const { error } = await supabase.from("risks").insert(
-          rows.filter((r) => r.title).map((r) => ({
+          rows.filter((r) => r["title"]).map((r) => ({
             organization_id: orgId,
-            title: r.title!,
-            description: r.description ?? "",
-            domain: pick(r.domain, RISK_DOMAINS, "Internal"),
-            severity: pick(r.severity, RISK_SEVERITIES, "Medium"),
-            status: pick(r.status, RISK_STATUSES, "Open"),
-            owner: r.owner ?? "",
+            title: r["title"]!,
+            description: r["description"] ?? "",
+            domain: pick(r["domain"], RISK_DOMAINS, "Internal"),
+            severity: pick(r["severity"], RISK_SEVERITIES, "Medium"),
+            status: pick(r["status"], RISK_STATUSES, "Open"),
+            owner: r["owner"] ?? "",
           })),
         );
         if (error) throw error;
