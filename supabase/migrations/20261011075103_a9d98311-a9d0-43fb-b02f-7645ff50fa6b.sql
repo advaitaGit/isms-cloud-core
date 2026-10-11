@@ -1,0 +1,1 @@
+ALTER TABLE public.dashboards ADD COLUMN source jsonb;

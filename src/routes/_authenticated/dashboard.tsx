@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/AppShell";
 import { WidgetCard } from "@/components/WidgetCard";
+import { DataMenu, SOURCE_LABELS, SourceDialog, type Dataset, type Source } from "@/components/DataTools";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,6 +54,7 @@ interface DashRow {
   layouts: Layout[];
   active_layout: number;
   dataset: Record<string, string>[] | null;
+  source: Source | null;
 }
 
 function Dashboard() {
@@ -181,7 +183,7 @@ function Dashboard() {
     <>
       <PageHeader
         title={draft.name}
-        description={auth.organization ? `${auth.organization.name} · ${auth.organization.tier} tier · ${auth.organization.subscription_status}` : "Organization overview"}
+        description={draft.dataset ? `${draft.dataset.length} rows · ${draft.source ? SOURCE_LABELS[draft.source.kind] : "Imported data"}` : auth.organization ? `${auth.organization.name} · ${auth.organization.tier} tier · ${auth.organization.subscription_status}` : "Organization overview"}
         action={
           <div className="flex flex-wrap items-center gap-2">
             <Select value={draft.id} onValueChange={(v) => { setDirty(false); setSelected(v); setEditing(false); }}>
@@ -190,6 +192,14 @@ function Dashboard() {
                 {dashboards.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
               </SelectContent>
             </Select>
+            <DataMenu dataset={draft.dataset} source={draft.source} orgId={orgId} disabled={auth.readOnly && !draft.dataset}
+              onRisksImported={() => void qc.invalidateQueries({ queryKey: ["dashboard"] })}
+              onDataset={async (rows: Dataset) => {
+                const { error } = await supabase.from("dashboards").update({ dataset: rows as unknown as Json }).eq("id", draft.id);
+                if (error) throw error;
+                setDraft({ ...draft, dataset: rows });
+                void qc.invalidateQueries({ queryKey: ["my-dashboards"] });
+              }} />
             <Button variant="outline" onClick={() => setNewOpen(true)}><Plus className="size-4" /> New dashboard</Button>
             <Button variant={editing ? "default" : "outline"} onClick={() => { if (editing && dirty) void save(); setEditing(!editing); }}>
               {editing ? <><Save className="size-4" /> Done</> : <><Pencil className="size-4" /> Customize</>}
@@ -255,16 +265,28 @@ function Dashboard() {
         }}
       />
 
-      <NameDialog open={newOpen} title="New dashboard" initial="" onClose={() => setNewOpen(false)}
-        onSave={async (name) => {
+      <SourceDialog open={newOpen} onOpenChange={setNewOpen}
+        onCreate={async (name, dataset, source) => {
+          let widgets: Widget[] = [];
+          if (dataset?.[0]) {
+            const ms = Object.keys(datasetMetrics(dataset));
+            const first = ms.find((m) => m.startsWith("ds_count:"));
+            const sum = ms.find((m) => m.startsWith("ds_sum:"));
+            widgets = [
+              ...(sum ? [{ id: uid(), type: "bar" as const, metric: sum, size: "L" as const }] : []),
+              ...(first ? [{ id: uid(), type: "donut" as const, metric: first, size: "M" as const }, { id: uid(), type: "table" as const, metric: first, size: "M" as const }] : []),
+            ];
+          }
           const { data: row, error } = await supabase.from("dashboards")
-            .insert({ name, organization_id: orgId ?? null, layouts: [{ name: "Customization 1", widgets: [] }] as unknown as Json })
+            .insert({ name, organization_id: orgId ?? null, layouts: [{ name: "Customization 1", widgets }] as unknown as Json,
+              dataset: (dataset ?? null) as unknown as Json, source: (source ?? null) as unknown as Json })
             .select().single();
-          if (error || !row) return void toast.error(error?.message ?? "Failed");
+          if (error || !row) throw new Error(error?.message ?? "Failed");
           setNewOpen(false);
           await qc.invalidateQueries({ queryKey: ["my-dashboards"] });
           setSelected(row.id);
-          setEditing(true);
+          setEditing(widgets.length === 0);
+          toast.success(dataset ? `Loaded ${dataset.length} rows` : "Dashboard created");
         }} />
     </>
   );
